@@ -5,7 +5,7 @@ Tested on Windows. Mac or Linux has not been tested (yet).
 
 ## Usage(s)
 
-The script can run in 
+The script can run in:
 
 ### headless mode (arg -hl)
 
