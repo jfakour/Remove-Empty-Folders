@@ -11,13 +11,13 @@ The script can run in:
 
 In headless mode the script will recursively search for empty folders and remove them without a prompt.
 
-``` python3 ./find_empty_folders -hl -dir path_to_directory_you_want_cleaned ```
+``` python ./remove_empty_folders -hl -dir path_to_directory_you_want_cleaned ```
 
 ### interactive mode
 
 In normal mode the script will search for empty folders, present a list of directories about to removed, and ask for confirmation (to remove all items in the list)
 
-``` python3 ./find_empty_folders -dir path_to_directory_you_want_cleaned ```
+``` python ./remove_empty_folders -dir path_to_directory_you_want_cleaned ```
 
 ## Notes
 
