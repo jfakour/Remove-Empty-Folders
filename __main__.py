@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]: %(m
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dir", help="Root directory", default="")
-parser.add_argument("-hl", "--headless", help="Headless Mode: True", action='store_true')
+parser.add_argument("-hl", "--headless", help="Including this argument sets HEADLESS_MODE: True", action='store_true')
 parser.add_argument("-s", "--sizelimit", type=sizelimit_type, help="Include all folders <= sizelimit (bytes)", default=0)
 args = parser.parse_args()
 
