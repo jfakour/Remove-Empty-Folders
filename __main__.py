@@ -52,6 +52,10 @@ def get_root_dir_from(path: str):
 
 def remove_dirs_from(dir_list: list, print= True):
     for d in dir_list:
+        for f in os.listdir(d):
+            f = os.path.join(d, f)
+            os.remove(f)
+            logging.info(f"'{f}' removed.")
         os.rmdir(d)
         if print:
             logging.info(f"'{d}' removed.")
