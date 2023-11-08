@@ -20,15 +20,17 @@ args = parser.parse_args()
 HEADLESS_MODE = args.headless
 SIZE_LIMIT = args.sizelimit
 logging.info(f"This application will recursively search a root directory and remove folders smaller than {SIZE_LIMIT} bytes.")
+IGNORE_DICT = {}
 
 def find_empty_folders(path: str, size_limit: int):
     result = {}
     for root, folders, files in os.walk(path, topdown=False):
         for f in folders:
             f_path = os.path.join(root, f)
-            f_size = get_size(f_path)
-            if not os.listdir(f_path) or f_size <= size_limit:
-                result[f_path] = f_size
+            if f_path not in IGNORE_DICT:
+                f_size = get_size(f_path)
+                if not os.listdir(f_path) or f_size <= size_limit:
+                    result[f_path] = f_size
 
     return result
 
@@ -50,15 +52,26 @@ def get_root_dir_from(path: str):
         result = result.replace('"', "")
     return result
 
-def remove_dirs_from(dir_list: list, print= True):
+def remove_dirs_from(dir_list: list):
     for d in dir_list:
         for f in os.listdir(d):
-            f = os.path.join(d, f)
-            os.remove(f)
-            logging.info(f"'{f}' removed.")
-        os.rmdir(d)
-        if print:
-            logging.info(f"'{d}' removed.")
+            remove_single_item(f)
+        remove_single_item(d)
+
+def remove_single_item(file_or_dir: str):
+    if (remove_single_item in IGNORE_DICT):
+        logging.info(f"IGNORED '{file_or_dir}'")
+    try:
+        if os.path.isfile(file_or_dir):
+            os.remove(file_or_dir)
+            t = 'File'
+        else:
+            os.rmdir(file_or_dir)
+            t = 'Folder'
+        logging.info(f"{t} '{file_or_dir}' removed")
+    except PermissionError as pe:
+        IGNORE_DICT[file_or_dir] = "Permissions Error"
+        logging.warning(f"Permissions Error: {file_or_dir} added to Ignore List")
 
 def print_list(d: dict):
     keys = d.keys()
@@ -78,17 +91,22 @@ if __name__ == "__main__":
     HEADLESS_MODE = False if ROOT_DIR != args.dir else HEADLESS_MODE
     HL_Str = "ON" if HEADLESS_MODE else "OFF"
     logging.warning(f"HEADLESS MODE: {HL_Str}")
-    e_dir_list = find_empty_folders(ROOT_DIR, SIZE_LIMIT)
+    e_dir_dict = find_empty_folders(ROOT_DIR, SIZE_LIMIT)
 
-    while (len(e_dir_list) > 0):
+    while (len(e_dir_dict) > 0):
+        logging.info("******************************************************") 
+        logging.info("* The following Files/Folders will be ignored:        ")   
+        print_list(IGNORE_DICT)
+        logging.info("* ----------------------------------------------------") 
+
         logging.info("******************************************************") 
         logging.info("* The following directories are marked for removal: ")   
-        print_list(e_dir_list)
+        print_list(e_dir_dict)
         logging.info("* ----------------------------------------------------")  
         if not removal_prompt():
             break
-        remove_dirs_from(e_dir_list)
-        e_dir_list = find_empty_folders(ROOT_DIR, SIZE_LIMIT)
+        remove_dirs_from(e_dir_dict)
+        e_dir_dict = find_empty_folders(ROOT_DIR, SIZE_LIMIT)
 
     logging.info("Exiting Application.")
 
